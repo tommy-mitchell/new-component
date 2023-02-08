@@ -29,6 +29,10 @@
   "dependencies": {
     "chalk": "^2.4.1",
     "commander": "^2.15.1",
-    "prettier": "1.5.3"
+    "prettier": "2.8.3"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "es5"
   }
 }

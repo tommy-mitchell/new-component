@@ -56,10 +56,10 @@ module.exports.buildPrettifier = (prettierConfig) => {
     const currentPath = process.cwd();
 
     try {
-      config = fs.readFileSync(
-        path.join(currentPath, '/.prettierrc'),
-        { encoding: 'utf8', flag: 'r' }
-      );
+      config = fs.readFileSync(path.join(currentPath, '/.prettierrc'), {
+        encoding: 'utf8',
+        flag: 'r',
+      });
     } catch (err) {
       // No big deal, they don't have a prettier config
     }
@@ -68,15 +68,17 @@ module.exports.buildPrettifier = (prettierConfig) => {
       try {
         config = JSON.parse(config);
       } catch (err) {
-        console.error('Count not parse .prettierrc, does not appear to be JSON')
+        console.error(
+          'Could not parse .prettierrc, does not appear to be JSON'
+        );
       }
     }
   }
 
   return (text) => {
     return prettier.format(text, config);
-  }
-}
+  };
+};
 
 // Emit a message confirming the creation of the component
 const colors = {
