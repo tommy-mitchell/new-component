@@ -31,10 +31,10 @@ Install via NPM:
 
 ```bash
 # Using Yarn:
-$ yarn global add new-component
+$ yarn add -D new-component
 
 # or, using NPM
-$ npm i -g new-component
+$ npm i -D new-component
 ```
 
 `cd` into your project's directory, and try creating a new component:
@@ -66,6 +66,8 @@ export default Button;
 > This structure might appear odd to you, with an `index.js` that points to a named file. I've found this to be an optimal way to set up components; the `index.js` allows you to `import` from the directory (eg. `import Button from 'components/Button'`), while having `Button.js` means that you're never lost in a sea of `index.js` files in your editor.
 >
 > This structure is not currently configurable, but I'm happy to consider implementing alternatives!
+>
+> Supports TypeScript components as well. See []
 
 <br />
 
@@ -113,7 +115,9 @@ JSON config: `{ "dir": <value> }`
 
 ### File Extension
 
-Controls the file extension for the created components. Can be either `js` (default) or `jsx`.
+Controls the file extension for the created components. Supports any extension.
+If a TypeScript extension is used (`ts`, `tsx`, `mts`, `cts`), will output a TypeScript template. Otherwise,
+defaults to a JavaScript template.
 
 **Usage:**
 
@@ -122,9 +126,21 @@ Command line: `--extension <value>` or `-x <value>`
 JSON config: `{ "extension": <value> }`
 <br />
 
+### Pascal Case
+
+By default, this CLI will attempt to convert your component's name to PascalCase. Disable with a flag.
+
+**Usage:**
+
+Command line: `--noPascalCase`
+
+JSON config: `{ "pascalCase": <true | false> }`
+<br />
+
 ### Prettier Config
 
-Delegate settings to Prettier, so that your new component is formatted as you'd like. Defaults to Prettier defaults.
+Delegate settings to Prettier, so that your new component is formatted as you'd like. If none are provided,
+searches for a Prettier config in your project. If none are then found, Prettier defaults are used.
 
 For a full list of options, see the [Prettier docs](https://github.com/prettier/prettier#options).
 
@@ -145,8 +161,6 @@ JSON config: `{ "prettierConfig": { "key": "value" } }`
   }
 }
 ```
-
-(Ideally, the plugin would consume your project's prettier settings automatically! But I haven't built this yet. PRs welcome!)
 
 <br />
 
