@@ -32,7 +32,7 @@ module.exports.getConfig = () => {
   const defaults = {
     type: 'functional',
     dir: 'src/components',
-    extension: 'js',
+    extension: 'jsx',
   };
 
   const globalOverrides = requireOptional(
@@ -46,15 +46,18 @@ module.exports.getConfig = () => {
   return Object.assign({}, defaults, globalOverrides, localOverrides);
 };
 
-module.exports.buildPrettifier = (prettierConfig) => {
-  // If they haven't supplied a Prettier config,
-  // use Prettier to try to find one
+module.exports.buildPrettifier = ({ prettierConfig, extension }) => {
+  // If they haven't supplied a prettier config,
+  // use prettier to try to find one
 
   let config = prettierConfig;
 
   if (!config) {
     config = prettier.resolveConfig.sync(process.cwd());
   }
+
+  // Suppress Prettier parser warnings
+  config.filepath = `foo.${extension}`;
 
   return (text) => prettier.format(text, config);
 };
@@ -69,27 +72,31 @@ const colors = {
   darkGray: [90, 90, 90],
 };
 
+const blueHighlight = (text) => chalk.bold.rgb(...colors.blue)(text);
+
 const logComponentType = (selected) =>
   ['class', 'pure-class', 'functional']
     .sort((a, b) => (a === selected ? -1 : 1))
     .map((option) =>
       option === selected
-        ? `${chalk.bold.rgb(...colors.blue)(option)}`
+        ? `${blueHighlight(option)}`
         : `${chalk.rgb(...colors.darkGray)(option)}`
     )
     .join('  ');
 
-module.exports.logIntro = ({ name, dir, type }) => {
+module.exports.logIntro = ({ name, ext, dir, type }) => {
+  const styledName = chalk.bold.rgb(...colors.gold)(name);
+
   console.info('\n');
-  console.info(
-    `✨  Creating the ${chalk.bold.rgb(...colors.gold)(name)} component ✨`
-  );
+  console.info(`✨  Creating the ${styledName} component ✨`);
   console.info('\n');
 
-  const pathString = chalk.bold.rgb(...colors.blue)(dir);
+  const pathString = blueHighlight(dir);
+  const extString = blueHighlight(`.${ext}`);
   const typeString = logComponentType(type);
 
   console.info(`Directory:  ${pathString}`);
+  console.info(`Extension:  ${extString}`);
   console.info(`Type:       ${typeString}`);
   console.info(
     chalk.rgb(...colors.darkGray)('=========================================')

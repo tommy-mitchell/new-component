@@ -11,9 +11,10 @@
     "url": "https://github.com/joshwcomeau/new-component/issues"
   },
   "main": "src/index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "files": [
+    "src",
+    "docs"
+  ],
   "keywords": [
     "react",
     "reactjs",
@@ -30,6 +31,12 @@
     "chalk": "^2.4.1",
     "commander": "^2.15.1",
     "prettier": "2.8.3"
+  },
+  "devDependencies": {
+    "@types/react": ">=15.3.0"
+  },
+  "peerDependencies": {
+    "react": ">=15.3.0"
   },
   "prettier": {
     "singleQuote": true,

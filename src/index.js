@@ -26,10 +26,6 @@ const { version } = require('../package.json');
 // falls back to sensible defaults).
 const config = getConfig();
 
-// Convenience wrapper around Prettier, so that config doesn't have to be
-// passed every time.
-const prettify = buildPrettifier(config.prettierConfig);
-
 program
   .version(version)
   .arguments('<componentName>')
@@ -46,20 +42,32 @@ program
   )
   .option(
     '-x, --extension <fileExtension>',
-    'Which file extension to use for the component (default: "js")',
+    'Which file extension to use for the component (default: "jsx")',
     config.extension
   )
   .parse(process.argv);
 
 const [componentName] = program.args;
 
+// Check if using TS template or default to the JS one.
+const validTSExtensions = /^(ts|tsx|mts|cts)$/i;
+const templateType = validTSExtensions.test(program.extension) ? 'ts' : 'js';
+const templateExtension = `${templateType}x`;
+
 // Find the path to the selected template file.
-const templatePath = `./templates/${program.type}.js`;
+const templatePath = `./templates/${templateType}/${program.type}.${templateExtension}`;
 
 // Get all of our file paths worked out, for the user's project.
 const componentDir = `${program.dir}/${componentName}`;
 const filePath = `${componentDir}/${componentName}.${program.extension}`;
-const indexPath = `${componentDir}/index.${program.extension}`;
+const indexPath = `${componentDir}/index.${templateType}`;
+
+// Convenience wrapper around Prettier, so that config doesn't have to be
+// passed every time.
+const prettify = buildPrettifier({
+  prettierConfig: config.prettierConfig,
+  extension: templateType,
+});
 
 // Our index template is super straightforward, so we'll just inline it for now.
 const indexTemplate = prettify(`\
@@ -67,7 +75,12 @@ export * from './${componentName}';
 export { default } from './${componentName}';
 `);
 
-logIntro({ name: componentName, dir: componentDir, type: program.type });
+logIntro({
+  name: componentName,
+  ext: program.extension,
+  dir: componentDir,
+  type: program.type,
+});
 
 // Check if componentName is provided
 if (!componentName) {
