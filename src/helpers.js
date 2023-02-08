@@ -47,37 +47,16 @@ module.exports.getConfig = () => {
 };
 
 module.exports.buildPrettifier = (prettierConfig) => {
-  // If they haven't supplied a prettier config, check for a
-  // `.prettierrc`!
+  // If they haven't supplied a Prettier config,
+  // use Prettier to try to find one
 
   let config = prettierConfig;
 
   if (!config) {
-    const currentPath = process.cwd();
-
-    try {
-      config = fs.readFileSync(path.join(currentPath, '/.prettierrc'), {
-        encoding: 'utf8',
-        flag: 'r',
-      });
-    } catch (err) {
-      // No big deal, they don't have a prettier config
-    }
-
-    if (config) {
-      try {
-        config = JSON.parse(config);
-      } catch (err) {
-        console.error(
-          'Could not parse .prettierrc, does not appear to be JSON'
-        );
-      }
-    }
+    config = prettier.resolveConfig.sync(process.cwd());
   }
 
-  return (text) => {
-    return prettier.format(text, config);
-  };
+  return (text) => prettier.format(text, config);
 };
 
 // Emit a message confirming the creation of the component
