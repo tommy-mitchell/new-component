@@ -17,6 +17,7 @@ const {
   mkDirPromise,
   readFilePromiseRelative,
   writeFilePromise,
+  toPascalCase,
 } = require('./utils');
 
 // Load our package.json, so that we can pass the version onto `commander`.
@@ -45,9 +46,17 @@ program
     'Which file extension to use for the component (default: "jsx")',
     config.extension
   )
+  .option(
+    '--noPascalCase',
+    'Disable converting component name to PascalCase (default: on)',
+    !config.pascalCase
+  )
   .parse(process.argv);
 
-const [componentName] = program.args;
+const [componentNameArg] = program.args;
+const componentName = program.noPascalCase
+  ? componentNameArg
+  : toPascalCase(componentNameArg);
 
 // Check if using TS template or default to the JS one.
 const validTSExtensions = /^(ts|tsx|mts|cts)$/i;

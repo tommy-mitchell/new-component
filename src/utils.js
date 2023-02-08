@@ -54,3 +54,8 @@ module.exports.writeFilePromise = (fileLocation, fileContent) =>
 // to the code's directory.
 module.exports.readFilePromiseRelative = (fileLocation) =>
   module.exports.readFilePromise(path.join(__dirname, fileLocation));
+
+module.exports.toPascalCase = (str) =>
+  str.replace(/(\w)(\w*)/g, (_, firstChar, otherChars) =>
+    firstChar.toUpperCase().concat(otherChars.toLowerCase())
+  );
