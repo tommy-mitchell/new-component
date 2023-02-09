@@ -5,6 +5,7 @@ const path = require('path');
 const program = require('commander');
 
 const {
+  componentTypes,
   getConfig,
   buildPrettifier,
   logIntro,
@@ -27,48 +28,58 @@ const { version } = require('../package.json');
 // falls back to sensible defaults).
 const config = getConfig();
 
+// Set up CLI
+program
+  .name('new-component')
+  .description('Creates a new React component directory.')
+  .showHelpAfterError('(add --help for usage information)');
+
+// Add CLI flags
 program
   .version(version)
-  .arguments('<componentName>')
-  .option(
-    '-t, --type <componentType>',
-    'Type of React component to generate (default: "functional")',
-    /^(class|pure-class|functional)$/i,
-    config.type
-  )
+  .argument('<componentName>', 'name of the new component')
   .option(
     '-d, --dir <pathToDirectory>',
-    'Path to the "components" directory (default: "src/components")',
+    'path to the "components" directory',
     config.dir
+  )
+  .addOption(
+    program
+      .createOption(
+        '-t, --type <componentType>',
+        'type of React component to generate'
+      )
+      .default(config.type)
+      .choices(componentTypes)
   )
   .option(
     '-x, --extension <fileExtension>',
-    'Which file extension to use for the component (default: "jsx")',
+    'which file extension to use for the component',
     config.extension
   )
-  .option(
-    '--noPascalCase',
-    'Disable converting component name to PascalCase (default: on)',
-    !config.pascalCase
-  )
-  .parse(process.argv);
+  .option('--no-pascal-case', 'disable converting component name to PascalCase')
+  .action(function () {
+    // Convert <componentName> at 'this.args[0]' to PascalCase
+    if (this.opts().pascalCase) {
+      this.args[0] = toPascalCase(this.args[0]);
+    }
+  })
+  .parse();
 
-const [componentNameArg] = program.args;
-const componentName = program.noPascalCase
-  ? componentNameArg
-  : toPascalCase(componentNameArg);
+const [componentName] = [program.args];
+const { dir, type, extension } = program.opts();
 
 // Check if using TS template or default to the JS one.
 const validTSExtensions = /^(ts|tsx|mts|cts)$/i;
-const templateType = validTSExtensions.test(program.extension) ? 'ts' : 'js';
+const templateType = validTSExtensions.test(extension) ? 'ts' : 'js';
 const templateExtension = `${templateType}x`;
 
 // Find the path to the selected template file.
-const templatePath = `./templates/${templateType}/${program.type}.${templateExtension}`;
+const templatePath = `./templates/${templateType}/${type}.${templateExtension}`;
 
 // Get all of our file paths worked out, for the user's project.
-const componentDir = `${program.dir}/${componentName}`;
-const filePath = `${componentDir}/${componentName}.${program.extension}`;
+const componentDir = `${dir}/${componentName}`;
+const filePath = `${componentDir}/${componentName}.${extension}`;
 const indexPath = `${componentDir}/index.${templateType}`;
 
 // Convenience wrapper around Prettier, so that config doesn't have to be
@@ -86,24 +97,16 @@ export { default } from './${componentName}';
 
 logIntro({
   name: componentName,
-  ext: program.extension,
+  ext: extension,
   dir: componentDir,
-  type: program.type,
+  type: type,
 });
 
-// Check if componentName is provided
-if (!componentName) {
-  logError(
-    `Sorry, you need to specify a name for your component like this: new-component <name>`
-  );
-  process.exit(0);
-}
-
 // Check to see if a directory at the given path exists
-const fullPathToParentDir = path.resolve(program.dir);
+const fullPathToParentDir = path.resolve(dir);
 if (!fs.existsSync(fullPathToParentDir)) {
   logError(
-    `Sorry, you need to create a parent "components" directory.\n(new-component is looking for a directory at ${program.dir}).`
+    `Sorry, you need to create a parent "components" directory.\n(new-component is looking for a directory at ${dir}).`
   );
   process.exit(0);
 }

@@ -132,7 +132,7 @@ By default, this CLI will attempt to convert your component's name to PascalCase
 
 **Usage:**
 
-Command line: `--noPascalCase`
+Command line: `--no-pascal-case`
 
 JSON config: `{ "pascalCase": <true | false> }`
 <br />

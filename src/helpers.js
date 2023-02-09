@@ -14,7 +14,11 @@ const path = require('path');
 const prettier = require('prettier');
 const chalk = require('chalk');
 
-const { requireOptional } = require('./utils');
+const { requireOptional, arrayToObject } = require('./utils');
+
+const componentTypesArr = ['class', 'pure-class', 'functional'];
+const componentTypesObj = arrayToObject(componentTypesArr);
+module.exports.componentTypes = componentTypesArr;
 
 // Get the configuration for this component.
 // Overrides are as follows:
@@ -30,7 +34,7 @@ module.exports.getConfig = () => {
   const currentPath = process.cwd();
 
   const defaults = {
-    type: 'functional',
+    type: componentTypesObj.functional,
     dir: 'src/components',
     extension: 'jsx',
     pascalCase: true,
@@ -76,7 +80,7 @@ const colors = {
 const blueHighlight = (text) => chalk.bold.rgb(...colors.blue)(text);
 
 const logComponentType = (selected) =>
-  ['class', 'pure-class', 'functional']
+  componentTypesArr
     .sort((a, b) => (a === selected ? -1 : 1))
     .map((option) =>
       option === selected

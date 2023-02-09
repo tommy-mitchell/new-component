@@ -59,3 +59,6 @@ module.exports.toPascalCase = (str) =>
   str.replace(/(\w)(\w*)/g, (_, firstChar, otherChars) =>
     firstChar.toUpperCase().concat(otherChars.toLowerCase())
   );
+
+module.exports.arrayToObject = (arr) =>
+  Object.fromEntries(arr.map((item) => [item, item]));
