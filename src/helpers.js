@@ -63,7 +63,7 @@ module.exports.buildPrettifier = ({ prettierConfig, extension }) => {
   }
 
   // Suppress Prettier parser warnings
-  config.filepath = `foo.${extension}`;
+  config = { ...config, filepath: `foo.${extension}` };
 
   return (text) => prettier.format(text, config);
 };
