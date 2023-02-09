@@ -15,11 +15,8 @@ const prettier = require('prettier');
 const chalk = require('chalk');
 const promptly = require('promptly');
 
-const { requireOptional, arrayToObject, toPascalCase } = require('./utils');
-
-const componentTypesArr = ['class', 'pure-class', 'functional'];
-const componentTypesObj = arrayToObject(componentTypesArr);
-module.exports.componentTypes = componentTypesArr;
+const { requireOptional, toPascalCase, sample } = require('./utils');
+const AFFIRMATIONS = require('./affirmations');
 
 // Get the configuration for this component.
 // Overrides are as follows:
@@ -35,7 +32,6 @@ module.exports.getConfig = () => {
   const currentPath = process.cwd();
 
   const defaults = {
-    type: componentTypesObj.functional,
     dir: 'src/components',
     extension: 'jsx',
     pascalCase: true,
@@ -52,17 +48,18 @@ module.exports.getConfig = () => {
   return Object.assign({}, defaults, globalOverrides, localOverrides);
 };
 
-module.exports.buildPrettifier = ({ prettierConfig, extension }) => {
-  // If they haven't supplied a prettier config,
-  // use prettier to try to find one
+module.exports.buildPrettifier = (extension) => {
+  // Use Prettier to parse config
+  let config = prettier.resolveConfig.sync(process.cwd());
 
-  let config = prettierConfig;
+  // default config:
+  config = config || {
+    semi: true,
+    singleQuote: true,
+    trailingComma: 'es5',
+  };
 
-  if (!config) {
-    config = prettier.resolveConfig.sync(process.cwd());
-  }
-
-  // Suppress Prettier parser warnings
+  // Suppress Prettier warnings about parser/filepath
   config = { ...config, filepath: `foo.${extension}` };
 
   return (text) => prettier.format(text, config);
@@ -80,17 +77,7 @@ const colors = {
 
 const blueHighlight = (text) => chalk.bold.rgb(...colors.blue)(text);
 
-const logComponentType = (selected) =>
-  componentTypesArr
-    .sort((a, b) => (a === selected ? -1 : 1))
-    .map((option) =>
-      option === selected
-        ? `${blueHighlight(option)}`
-        : `${chalk.rgb(...colors.darkGray)(option)}`
-    )
-    .join('  ');
-
-module.exports.logIntro = ({ name, ext, dir, type }) => {
+module.exports.logIntro = ({ name, ext, dir }) => {
   const styledName = chalk.bold.rgb(...colors.gold)(name);
 
   console.info('\n');
@@ -99,11 +86,9 @@ module.exports.logIntro = ({ name, ext, dir, type }) => {
 
   const pathString = blueHighlight(dir);
   const extString = blueHighlight(`.${ext}`);
-  const typeString = logComponentType(type);
 
   console.info(`Directory:  ${pathString}`);
   console.info(`Extension:  ${extString}`);
-  console.info(`Type:       ${typeString}`);
   console.info(
     chalk.rgb(...colors.darkGray)('=========================================')
   );
@@ -118,10 +103,8 @@ module.exports.logItemCompletion = (successText) => {
 
 module.exports.logConclusion = () => {
   console.info('\n');
-  console.info(chalk.bold.rgb(...colors.green)('Component created! 🚀 '));
-  console.info(
-    chalk.rgb(...colors.mediumGray)('Thanks for using new-component.')
-  );
+  console.info(chalk.bold.rgb(...colors.green)('Component created!'));
+  console.info(chalk.rgb(...colors.mediumGray)(sample(AFFIRMATIONS)));
   console.info('\n');
 };
 

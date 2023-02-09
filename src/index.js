@@ -1,10 +1,7 @@
 #!/usr/bin/env node
-const path = require('path');
-
-const program = require('commander');
+const { program } = require('commander');
 
 const {
-  componentTypes,
   getConfig,
   checkComponentName,
   checkForComponentsDir,
@@ -32,20 +29,6 @@ program
     '-d, --dir <pathToDirectory>',
     'path to the "components" directory',
     config.dir
-  )
-  .addOption(
-    program
-      .createOption(
-        '-t, --type <componentType>',
-        'type of React component to generate'
-      )
-      .default(config.type)
-      .choices(componentTypes)
-  )
-  .option(
-    '-x, --extension <fileExtension>',
-    'which file extension to use for the component (without the dot)',
-    config.extension
   )
   .option('--no-pascal-case', 'disable converting component name to PascalCase')
   .action(async function () {

@@ -60,5 +60,6 @@ module.exports.toPascalCase = (str) =>
     firstChar.toUpperCase().concat(otherChars.toLowerCase())
   );
 
-module.exports.arrayToObject = (arr) =>
-  Object.fromEntries(arr.map((item) => [item, item]));
+module.exports.sample = (arr) => {
+  return arr[Math.floor(Math.random() * arr.length)];
+};
