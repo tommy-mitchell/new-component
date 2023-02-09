@@ -13,8 +13,9 @@ const path = require('path');
 
 const prettier = require('prettier');
 const chalk = require('chalk');
+const promptly = require('promptly');
 
-const { requireOptional, arrayToObject } = require('./utils');
+const { requireOptional, arrayToObject, toPascalCase } = require('./utils');
 
 const componentTypesArr = ['class', 'pure-class', 'functional'];
 const componentTypesObj = arrayToObject(componentTypesArr);
@@ -129,4 +130,55 @@ module.exports.logError = (error) => {
   console.info(chalk.bold.rgb(...colors.red)('Error creating component.'));
   console.info(chalk.rgb(...colors.red)(error));
   console.info('\n');
+};
+
+module.exports.logWarning = (warning) => {
+  console.info('\n');
+  console.info(chalk.bold.rgb(...colors.gold)(`⚠️  Warning: ${warning}`));
+  console.info('\n');
+};
+
+module.exports.checkComponentName = (thisArg) => {
+  let componentName = thisArg.args[0];
+  const maybeExtension = path.extname(componentName);
+
+  // If extension provided in <componentName>, separate and set option
+  if (maybeExtension) {
+    componentName = path.basename(componentName, maybeExtension);
+    thisArg.opts().extension = maybeExtension.substring(1);
+  }
+
+  // Convert <componentName> to PascalCase
+  if (thisArg.opts().pascalCase) {
+    componentName = toPascalCase(componentName);
+  }
+
+  thisArg.args[0] = componentName;
+};
+
+module.exports.checkForComponentsDir = async (dir) => {
+  const fullPathToParentDir = path.resolve(dir);
+
+  if (!fs.existsSync(fullPathToParentDir)) {
+    module.exports.logWarning(
+      `No parent "components" directory found at '${dir}'.`
+    );
+
+    const createComponentsDir = await promptly.confirm(
+      'Create "components" directory? (Y/N): '
+    );
+
+    if (createComponentsDir) {
+      module.exports.logWarning('Creating...');
+      fs.mkdirSync(dir);
+      module.exports.logItemCompletion(
+        `Created "components" directory at '${dir}'.`
+      );
+    } else {
+      module.exports.logError(
+        `Cannot proceed without a "components" directory. Did you mean to set one with '--dir <pathToDirectory>'?`
+      );
+      process.exit(0);
+    }
+  }
 };
