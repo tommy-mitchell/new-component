@@ -67,7 +67,7 @@ export default Button;
 >
 > This structure is not currently configurable, but I'm happy to consider implementing alternatives!
 >
-> Supports TypeScript components as well. See []
+> Supports TypeScript components as well. See [**File Extension**](#file-extension).
 
 <br />
 
@@ -125,6 +125,13 @@ Command line: `--extension <value>` or `-x <value>`
 
 JSON config: `{ "extension": <value> }`
 <br />
+
+Alternatively, the extension can be provided in the component's name:
+
+```sh
+# Will create e.g. 'Foo.tsx' at 'src/components/Foo'
+npx new-component foo.tsx
+```
 
 ### Pascal Case
 

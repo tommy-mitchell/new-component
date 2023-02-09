@@ -54,15 +54,26 @@ program
   )
   .option(
     '-x, --extension <fileExtension>',
-    'which file extension to use for the component',
+    'which file extension to use for the component (without the dot)',
     config.extension
   )
   .option('--no-pascal-case', 'disable converting component name to PascalCase')
   .action(function () {
-    // Convert <componentName> at 'this.args[0]' to PascalCase
-    if (this.opts().pascalCase) {
-      this.args[0] = toPascalCase(this.args[0]);
+    let componentName = this.args[0];
+    const maybeExtension = path.extname(componentName);
+
+    // If extension provided in <componentName>, separate and set option
+    if (maybeExtension) {
+      componentName = path.basename(componentName, maybeExtension);
+      this.opts().extension = maybeExtension.substring(1);
     }
+
+    // Convert <componentName> to PascalCase
+    if (this.opts().pascalCase) {
+      componentName = toPascalCase(componentName);
+    }
+
+    this.args[0] = componentName;
   })
   .parse();
 
