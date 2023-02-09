@@ -77,12 +77,12 @@ const colors = {
 
 const blueHighlight = (text) => chalk.bold.rgb(...colors.blue)(text);
 
-module.exports.logIntro = ({ name, ext, dir }) => {
+module.exports.logIntro = ({ name, dir, ext }) => {
   const styledName = chalk.bold.rgb(...colors.gold)(name);
 
-  console.info('\n');
+  console.info('');
   console.info(`✨  Creating the ${styledName} component ✨`);
-  console.info('\n');
+  console.info('');
 
   const pathString = blueHighlight(dir);
   const extString = blueHighlight(`.${ext}`);
@@ -93,7 +93,7 @@ module.exports.logIntro = ({ name, ext, dir }) => {
     chalk.rgb(...colors.darkGray)('=========================================')
   );
 
-  console.info('\n');
+  console.info('');
 };
 
 module.exports.logItemCompletion = (successText) => {
@@ -102,26 +102,28 @@ module.exports.logItemCompletion = (successText) => {
 };
 
 module.exports.logConclusion = () => {
-  console.info('\n');
+  console.info('');
   console.info(chalk.bold.rgb(...colors.green)('Component created!'));
   console.info(chalk.rgb(...colors.mediumGray)(sample(AFFIRMATIONS)));
-  console.info('\n');
 };
 
 module.exports.logError = (error) => {
-  console.info('\n');
+  console.info('');
   console.info(chalk.bold.rgb(...colors.red)('Error creating component.'));
   console.info(chalk.rgb(...colors.red)(error));
-  console.info('\n');
+  console.info('');
 };
 
 module.exports.logWarning = (warning) => {
-  console.info('\n');
+  console.info('');
   console.info(chalk.bold.rgb(...colors.gold)(`⚠️  Warning: ${warning}`));
-  console.info('\n');
+  console.info('');
 };
 
-module.exports.checkComponentName = (thisArg) => {
+// Processes the <componentName> argument to check for a provided extension,
+// and to optionally convert the provided name to PascalCase.
+//   could be in the form <componentName>[.componentExtension] (ex: 'foo.js')
+module.exports.processComponentNameAndExtension = (thisArg) => {
   let componentName = thisArg.args[0];
   const maybeExtension = path.extname(componentName);
 
@@ -139,7 +141,7 @@ module.exports.checkComponentName = (thisArg) => {
   thisArg.args[0] = componentName;
 };
 
-module.exports.checkForComponentsDir = async (dir) => {
+module.exports.createComponentsDirIfNeeded = async (dir) => {
   const fullPathToParentDir = path.resolve(dir);
 
   if (!fs.existsSync(fullPathToParentDir)) {

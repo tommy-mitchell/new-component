@@ -3,8 +3,8 @@ const { program } = require('commander');
 
 const {
   getConfig,
-  checkComponentName,
-  checkForComponentsDir,
+  processComponentNameAndExtension,
+  createComponentsDirIfNeeded,
 } = require('./helpers');
 const { createComponent } = require('./createComponent');
 
@@ -32,8 +32,13 @@ program
   )
   .option('--no-pascal-case', 'disable converting component name to PascalCase')
   .action(async function () {
-    checkComponentName(this);
-    await checkForComponentsDir(this.opts().dir);
+    processComponentNameAndExtension(this);
+    await createComponentsDirIfNeeded(this.opts().dir);
   })
-  .hook('postAction', () => createComponent(program, config))
+  .hook('postAction', () => {
+    const [componentName] = [program.args];
+    const options = program.opts();
+
+    createComponent({ componentName, options });
+  })
   .parseAsync();

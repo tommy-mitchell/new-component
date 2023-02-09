@@ -14,41 +14,34 @@ const {
   writeFilePromise,
 } = require('./utils');
 
-module.exports.createComponent = (program, config) => {
-  const [componentName] = [program.args];
-  const { dir, type, extension } = program.opts();
-
+module.exports.createComponent = ({ componentName, options }) => {
   // Check if using TS template or default to the JS one.
   const validTSExtensions = /^(ts|tsx|mts|cts)$/i;
-  const templateType = validTSExtensions.test(extension) ? 'ts' : 'js';
+  const templateType = validTSExtensions.test(options.extension) ? 'ts' : 'js';
   const templateExtension = `${templateType}x`;
 
   // Find the path to the selected template file.
-  const templatePath = `./templates/${templateType}/${type}.${templateExtension}`;
+  const templatePath = `./templates/template.${templateExtension}`;
 
   // Get all of our file paths worked out, for the user's project.
-  const componentDir = `${dir}/${componentName}`;
-  const filePath = `${componentDir}/${componentName}.${extension}`;
+  const componentDir = `${options.dir}/${componentName}`;
+  const filePath = `${componentDir}/${componentName}.${options.extension}`;
   const indexPath = `${componentDir}/index.${templateType}`;
 
   // Convenience wrapper around Prettier, so that config doesn't have to be
   // passed every time.
-  const prettify = buildPrettifier({
-    prettierConfig: config.prettierConfig,
-    extension: templateType,
-  });
+  const prettify = buildPrettifier(templateType);
 
   // Our index template is super straightforward, so we'll just inline it for now.
   const indexTemplate = prettify(`\
     export * from './${componentName}';
     export { default } from './${componentName}';
-    `);
+  `);
 
   logIntro({
     name: componentName,
-    ext: extension,
     dir: componentDir,
-    type: type,
+    ext: options.extension,
   });
 
   // Check to see if this component has already been created
