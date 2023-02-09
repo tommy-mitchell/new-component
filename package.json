@@ -30,6 +30,7 @@
   "dependencies": {
     "chalk": "^2.4.1",
     "commander": "^10",
+    "js-convert-case": "^4.2.0",
     "prettier": "2.8.4",
     "promptly": "^3.2.0"
   },

@@ -55,11 +55,6 @@ module.exports.writeFilePromise = (fileLocation, fileContent) =>
 module.exports.readFilePromiseRelative = (fileLocation) =>
   module.exports.readFilePromise(path.join(__dirname, fileLocation));
 
-module.exports.toPascalCase = (str) =>
-  str.replace(/(\w)(\w*)/g, (_, firstChar, otherChars) =>
-    firstChar.toUpperCase().concat(otherChars.toLowerCase())
-  );
-
 module.exports.sample = (arr) => {
   return arr[Math.floor(Math.random() * arr.length)];
 };

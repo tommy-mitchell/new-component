@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const { toCamelCase } = require('js-convert-case');
+
 const {
   buildPrettifier,
   logIntro,
@@ -28,12 +30,18 @@ module.exports.createComponent = ({ componentName, options }) => {
   const filePath = `${componentDir}/${componentName}.${options.extension}`;
   const indexPath = `${componentDir}/index.${templateType}`;
 
+  const styleTemplate = `./templates/template.module.scss`;
+  const stylePath = `${componentDir}/${componentName}.module.scss`;
+
   // Convenience wrapper around Prettier, so that config doesn't have to be
   // passed every time.
-  const prettify = buildPrettifier(templateType);
+  const prettify = {
+    code: buildPrettifier(templateType),
+    styles: buildPrettifier('.scss'),
+  };
 
   // Our index template is super straightforward, so we'll just inline it for now.
-  const indexTemplate = prettify(`\
+  const indexTemplate = prettify.code(`\
     export * from './${componentName}';
     export { default } from './${componentName}';
   `);
@@ -60,27 +68,35 @@ module.exports.createComponent = ({ componentName, options }) => {
       logItemCompletion('Component directory created.');
       return template;
     })
-    .then((template) =>
+    .then((template) => {
       // Replace our placeholders with real data (so far, just the component name)
-      template.replace(/COMPONENT_NAME/g, componentName)
-    )
+      return template
+        .replace(/COMPONENT_NAME/g, componentName)
+        .replace(/COMPONENT_CLASS/g, toCamelCase(componentName));
+    })
     .then((template) =>
       // Format it using prettier, to ensure style consistency, and write to file.
-      writeFilePromise(filePath, prettify(template))
+      writeFilePromise(filePath, prettify.code(template))
     )
-    .then((template) => {
+    .then(() => {
       logItemCompletion('Component built and saved to disk.');
-      return template;
     })
+    .then(() => readFilePromiseRelative(styleTemplate))
     .then((template) =>
-      // We also need the `index.js` file, which allows easy importing.
-      writeFilePromise(indexPath, prettify(indexTemplate))
+      template.replace(/COMPONENT_CLASS/g, toCamelCase(componentName))
     )
-    .then((template) => {
+    .then((template) => writeFilePromise(stylePath, prettify.styles(template)))
+    .then(() =>
+      logItemCompletion('Styles module file built and saved to disk.')
+    )
+    .then(() =>
+      // We also need the `index.js` file, which allows easy importing.
+      writeFilePromise(indexPath, prettify.code(indexTemplate))
+    )
+    .then(() => {
       logItemCompletion('Index file built and saved to disk.');
-      return template;
     })
-    .then((template) => {
+    .then(() => {
       logConclusion();
     })
     .catch((err) => {

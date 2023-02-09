@@ -14,8 +14,9 @@ const path = require('path');
 const prettier = require('prettier');
 const chalk = require('chalk');
 const promptly = require('promptly');
+const { toPascalCase } = require('js-convert-case');
 
-const { requireOptional, toPascalCase, sample } = require('./utils');
+const { requireOptional, sample } = require('./utils');
 const AFFIRMATIONS = require('./affirmations');
 
 // Get the configuration for this component.
