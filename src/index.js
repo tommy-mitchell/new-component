@@ -33,6 +33,11 @@ program
   .option('--no-pascal-case', 'disable converting component name to PascalCase')
   .action(async function () {
     processComponentNameAndExtension(this);
+
+    if (!Object.hasOwn(this.opts(), 'extension')) {
+      this.opts().extension = config.extension;
+    }
+
     await createComponentsDirIfNeeded(this.opts().dir);
   })
   .hook('postAction', () => {
